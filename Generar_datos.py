@@ -1,83 +1,82 @@
-# -*- coding: utf-8 -*-
-import openpyxl
+import pandas as pd
 import json
 import os
-from datetime import datetime
 
 print("🚀 Generando datos actualizados...")
 
-ruta_datos = "datos_privados/"
-
 # 1. CUMPLEAÑOS
-wb = openpyxl.load_workbook(ruta_datos + "Alumnos.xlsx")
-ws = wb["export-2"]
+df_alumnos = pd.read_excel("datos_privados/Alumnos.xlsx", sheet_name="export-2")
+df_alumnos['fecha'] = pd.to_datetime(df_alumnos['Data de Nascimento']).dt.strftime('%d/%m')
+
 eventos = []
-for row in ws.iter_rows(min_row=2, values_only=True):
-    if not row or len(row) < 4: continue
-    nombre = str(row[0]).strip() if row[0] else ""
-    turma = str(row[1]).strip() if row[1] else ""
-    fecha_raw = row[3]
-    if nombre and fecha_raw:
-        try:
-            fecha = fecha_raw.strftime('%d/%m')
-        except:
-            fecha = str(fecha_raw)[:5]
-        eventos.append({
-            "fecha": fecha,
-            "tipo": "cumpleaños",
-            "descripcion": "Aniversário de {} {}".format(nombre, turma)
-        })
-print(" • {} cumpleaños cargados".format(len(eventos)))
+for _, row in df_alumnos.iterrows():
+    nombre = str(row['Nome']).strip()
+    turma = str(row['Turmas']).strip()
+    eventos.append({
+        "fecha": row['fecha'],
+        "tipo": "cumpleaños",
+        "descripcion": f"Aniversário de {nombre} {turma}"
+    })
+print(f" • {len(eventos)} cumpleaños cargados")
 
-# 2. DÍAS ESPECIALES + MENÚ
-wb_menu = openpyxl.load_workbook(ruta_datos + "Menu del dia.xlsx")
-
-# Días especiales
-ws_especiales = wb_menu["DiasEspeciales"]
-for row in ws_especiales.iter_rows(min_row=2, values_only=True):
-    if not row or not row[0]: continue
-    fecha_raw = row[0]
-    desc = str(row[1]).strip() if len(row) > 1 else ""
-    if fecha_raw and desc and desc != "nan" and desc != "":
+# 2. DÍAS ESPECIALES
+df_especiales = pd.read_excel("datos_privados/Menu del dia.xlsx", sheet_name="DiasEspeciales")
+for _, row in df_especiales.iterrows():
+    dia_raw = row.iloc[0]
+    if pd.isna(dia_raw): continue
+    if isinstance(dia_raw, pd.Timestamp) or 'datetime' in str(type(dia_raw)).lower():
+        fecha = dia_raw.strftime('%d/%m')
+    else:
         try:
-            fecha = fecha_raw.strftime('%d/%m')
+            fecha = pd.to_datetime(dia_raw, unit='D', origin='1899-12-30').strftime('%d/%m')
         except:
-            fecha = str(fecha_raw)[:5]
+            try:
+                fecha = pd.to_datetime(dia_raw).strftime('%d/%m')
+            except:
+                fecha = str(dia_raw).strip()[:5]
+    desc = str(row.iloc[1]).strip()
+    if fecha and desc and desc != "nan" and desc != "":
         eventos.append({"fecha": fecha, "tipo": "especial", "descripcion": desc})
-print(" • {} días especiales cargados".format(len([e for e in eventos if e['tipo'] == 'especial'])))
+print(f" • {len([e for e in eventos if e['tipo'] == 'especial'])} días especiales cargados")
 
-# Menú
-ws_menu = wb_menu["MenuSimple"]
+# 3. MENÚ
+df_menu = pd.read_excel("datos_privados/Menu del dia.xlsx", sheet_name="MenuSimple")
 menu = {}
-for row in ws_menu.iter_rows(min_row=2, values_only=True):
-    if not row or not row[0]: continue
-    fecha_raw = row[0]
-    desc = str(row[1]).strip() if len(row) > 1 else ""
-    if desc and len(desc) > 10:
+for _, row in df_menu.iterrows():
+    dia_raw = row.iloc[0]
+    if pd.isna(dia_raw): continue
+    try:
+        fecha = pd.to_datetime(dia_raw, unit='D', origin='1899-12-30').strftime('%d/%m')
+    except:
         try:
-            fecha = fecha_raw.strftime('%d/%m')
+            fecha = pd.to_datetime(dia_raw).strftime('%d/%m')
         except:
-            fecha = str(fecha_raw)[:5]
+            fecha = str(dia_raw).strip()[:5]
+    desc = str(row.iloc[1]).strip()
+    if desc and desc != "nan" and len(desc) > 10:
         menu[fecha] = desc
-print(" • {} días de menú cargados".format(len(menu)))
+print(f" • {len(menu)} días de menú cargados")
 
-# 3. FOTOS Y VÍDEOS
+# 4. FOTOS Y VÍDEOS
 imagenes = ["fotos/" + f for f in os.listdir("fotos") if f.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.mp4', '.webm', '.mov', '.avi'))]
-print(" • {} archivos en galería (fotos + vídeos)".format(len(imagenes)))
+print(f" • {len(imagenes)} archivos en galería (fotos + vídeos)")
 
-# 4. MENSAJE PERSONALIZADO
+# 5. MENSAJE PERSONALIZADO
 mensaje_hoy = ""
 try:
-    ws_mensaje = wb_menu["MensajeDia"]
-    hoy_str = datetime.today().strftime('%d/%m')
-    for row in ws_mensaje.iter_rows(min_row=2, values_only=True):
-        if not row or not row[0]: continue
-        fecha_raw = row[0]
-        texto = str(row[1]).strip() if len(row) > 1 else ""
-        try:
-            fecha = fecha_raw.strftime('%d/%m')
-        except:
-            fecha = str(fecha_raw)[:5]
+    df_mensaje = pd.read_excel("datos_privados/Menu del dia.xlsx", sheet_name="MensajeDia")
+    hoy_str = pd.to_datetime('today').strftime('%d/%m')
+    for _, row in df_mensaje.iterrows():
+        dia_raw = row.iloc[0]
+        if pd.isna(dia_raw): continue
+        if isinstance(dia_raw, pd.Timestamp) or 'datetime' in str(type(dia_raw)).lower():
+            fecha = dia_raw.strftime('%d/%m')
+        else:
+            try:
+                fecha = pd.to_datetime(dia_raw, unit='D', origin='1899-12-30').strftime('%d/%m')
+            except:
+                fecha = pd.to_datetime(dia_raw).strftime('%d/%m')
+        texto = str(row.iloc[1]).strip()
         if fecha == hoy_str and texto and texto != "nan":
             mensaje_hoy = texto
             break
