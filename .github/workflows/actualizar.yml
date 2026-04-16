@@ -2,8 +2,11 @@ name: Actualizar datos del colegio
 
 on:
   schedule:
-    - cron: '0 0 * * *'      # Todos los días a las 00:00 (medianoche)
+    - cron: '0 0 * * *'      # Todos los días a las 00:00
   workflow_dispatch:         # Permite ejecutarlo manualmente
+
+permissions:
+  contents: write            # ← Esta es la línea importante que faltaba
 
 jobs:
   actualizar:
