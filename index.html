@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="cg logo.png">
+    <title>Colégio Guadalupe</title>
+    <style>
+     /* Definimos las variables de la paleta principal de los colores de la web */ 
+        :root {
+            --verde-suave: #d4e5d7; 
+            --verde-oscuro: #1b4332; 
+            --blanco: #ffffff;
+            --gris-claro: #f4f4f4;
+        }
+
+        /* Estos bloques son de personalización aqui se puede cambiar toda la apariencia de la página                             */
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--gris-claro);
+            color: var(--verde-oscuro);
+            display: flex;
+            flex-direction: column;
+            height: 100vh; 
+            overflow: hidden; 
+        }
+
+        .guaada {
+            height: 60px;
+            object-fit: contain;
+        }
+
+        
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            flex-wrap: wrap; 
+            /* Aqui se puede cambiar la imágen del encabezado */
+            background-image: url(imagenfondo.png);
+            /*Aqui se ajusta la imagen*/
+            background-size: cover;
+            background-repeat: repeat;
+            background-position: center;
+            gap: 10px;
+            /*Color de la sombra*/
+            box-shadow: 
+            0px 0px 15px    #005507,
+            0px 0px 20px #005c12,
+            0px 0px 30px rgb(255, 198, 54);
+            z-index: 10;
+        }
+
+        /* Es toda la personalización de el titulo de arriba */
+        .titulo-colegio {
+            padding: 30px 35px;
+            border-radius: 8px;
+            margin: 0;
+            font-size: clamp(30px, 6vw, 32px);
+            font-weight: bold;
+            color: var(--verde-oscuro);
+        }
+
+
+        /* Es la personalización de las letras e información de el dia fecha hora y tiempo */
+        .info-tiempo-real {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            font-size: clamp(17px, 3vw, 18px);
+            font-weight: 500;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        /*Es el container verde que tiene el tiempo detras*/
+        .weather-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background-color: rgba(0, 98, 31, 0.7);
+            padding: 8px 18px;
+            border-radius: 25px;
+            min-width: 150px;
+        }
+
+        /*Es el tamaño del icono del tiempo*/
+        .weather-icon { font-size: 32px;}
+
+        main {
+            display: flex;
+            flex: 1; 
+            padding: 20px;
+            gap: 20px;
+            flex-direction: row; 
+            box-sizing: border-box;
+            min-height: 0; 
+        }
+        /*Es el contenedor de la galeria principal*/
+        .galeria-container {
+            flex: 6; 
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: #ddd;
+            height: 100%; 
+            box-shadow: 
+            0px 12px 15px -5px  #005507,
+            0px 15px 20px -8px  #005c12,
+            0px 22px 30px -12px rgb(255, 198, 54);
+        }
+        /* Aqui se puede cambiar la transición de imágenes*/
+        .galeria-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            opacity: 0;
+            transition: opacity 3s ease-in-out;
+        }
+
+        .galeria-container img.active { opacity: 1; }
+        /*Es el contenedor de el menu del dia*/
+        .columna-derecha {
+            flex: 4; 
+            display: flex;
+            flex-direction: column;
+            height: 100%; 
+        }
+        /*Es la personalización de el contenedor del menu del dia */
+        .menu-cafeteria {
+            background-color: var(--blanco);
+            padding: 25px;
+            border-radius: 10px;
+            border-top: 6px solid var(--verde-oscuro);
+            flex: 1; 
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+            box-shadow: 
+            0px 12px 15px -5px  #005507,
+            0px 15px 20px -8px  #005c12,
+            0px 22px 30px -12px rgb(255, 198, 54);
+        }
+
+        /*Es el titulo del menu del dia*/
+        .menu-cafeteria h2 {
+            margin-top: 0;
+            text-align: center;
+            border-bottom: 2px solid var(--verde-suave);
+            padding-bottom: 10px;
+            font-size: clamp(22px, 3vw, 32px); 
+        }
+
+        /*Aqui se puede personalizar el color de las letras de el tiempo*/
+        .letratiempo{
+            text-shadow: 0 0 8px rgba(255, 215, 0, 0.7);
+            color: white;
+        }
+
+        /*Es el contenido de el menu del dia*/
+        #menu-contenido {
+            margin-top: 10px;
+            font-size: clamp(14px, 1.6vw, 19px); 
+            line-height: 1.5; 
+            flex: 1; 
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            overflow: hidden; 
+        }
+        .plato-item {
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            display: none;
+        }
+        
+        .plato-item.mostrar {
+            opacity: 1;
+            display: block;
+        }
+/* "Contenedor principal de la cinta de texto deslizante en la parte inferior. Aquí se puede cambiar el color de fondo modificando 'background-color' o el espacio alrededor del texto con 'padding'." */
+        .ticker-container {
+            background-color: var(--verde-oscuro);
+            color: var(--blanco);
+            padding: 12px 0;
+            overflow: hidden;
+            white-space: nowrap;
+            z-index: 10;
+        }
+
+        /* "Estilo base del texto que se mueve. Aquí se puede cambiar el tamaño dinámico de la letra con 'font-size' (clamp) o modificar la velocidad de la animación cambiando los '25s'." */
+        .ticker-text {
+            display: inline-block;
+            padding-left: 100%;
+            animation: ticker 25s linear infinite;
+            font-size: clamp(16px, 2vw, 22px);
+            font-weight: bold;
+        }
+        
+        /* "Define el efecto de movimiento de derecha a izquierda. Empieza fuera de la pantalla (0) y termina desplazado completamente hacia la izquierda (-100%). Se puede cambiar la dirección modificando estos valores." */
+        @keyframes ticker {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* "Reglas de diseño para dispositivos móviles o pantallas de menos de 850 píxeles. Aquí se puede cambiar el valor '850px' para que el cambio de diseño ocurra en otro tamaño de pantalla, y modificar las alturas ('40vh') o la dirección de los elementos ('flex-direction: column')." */
+        @media (max-width: 850px) {
+            body {
+                height: auto;
+                overflow: auto; 
+            }
+            header {
+                flex-direction: column;
+                text-align: center;
+            }
+            main {
+                flex-direction: column;
+            }
+            .galeria-container {
+                height: 40vh;
+                flex: none;
+            }
+            .columna-derecha {
+                flex: none;
+                width: 100%;
+                min-height: 40vh;
+            }
+        }
+
+        /* "Reglas de diseño para pantallas gigantes o televisores (más de 1900px). Aquí se pueden cambiar los valores de 'padding' y 'gap' para que los elementos no se vean tan apretados en monitores grandes." */
+        @media (min-width: 1900px) {
+            .titulo-colegio { padding: 25px 40px; }
+            header { padding: 20px 40px; }
+            main { gap: 40px; padding: 40px; }
+        }
+
+        /* === ANIMACIÓN DEL TICKER === */
+        
+        /* "Redefinición de la animación del texto para hacerla un poco más lenta. Aquí se puede cambiar el tiempo de '30s' a '20s' si se quiere que el texto pase más rápido por la pantalla." */
+        .ticker-text {
+            display: inline-block;
+            padding-left: 100%;
+            animation: ticker 30s linear infinite; 
+        }
+
+        /* "Animación de latido o pulsación. Se puede cambiar el 'scale(1.18)' por un número mayor (como 1.3) para que el texto crezca mucho más, o menor para un efecto más discreto." */
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.18); }
+        }
+
+        /* "Estilo específico para los mensajes de cumpleaños en la cinta. Se puede cambiar el color del brillo dorado modificando los valores RGB en 'text-shadow' o cambiar el tiempo del latido en 'animation: pulse 1.8s'." */
+        .ticker-text span.cumple {
+            color: #ffffff;            
+            font-weight: bold;
+            animation: pulse 1.8s infinite ease-in-out;
+            text-shadow: 0 0 8px rgba(255, 215, 0, 0.7);
+        }
+
+        /* "Estilo para destacar los días especiales en la cinta. Se puede cambiar el color del texto sustituyendo el código hexadecimal '#8f7302' por otro color deseado." */
+        .ticker-text span.especial {
+            color: #8f7302;            
+            font-weight: bold;
+            text-shadow: 0 0 6px rgba(135, 111, 2, 0.6);
+        }
+
+        /* "Estilo simple para el mensaje de bienvenida de la cinta. Se puede cambiar el 'font-weight: 700' a 'normal' si no se quiere que la letra se vea tan gruesa." */
+        .ticker-text span.welcome {
+            color: #ffffff;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap; justify-content: center;">
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 5px;">
+                <img src="cg logo.png" alt="Logo Colegio" class="guaada">
+                <img src="University_of_Cambridge-Logo.wine.png" alt="Cambridge University" style="height: 50px;">
+            </div>
+            <h1 class="titulo-colegio">Colégio Guadalupe</h1>
+        </div>
+
+        <div class="info-tiempo-real">
+            <div id="reloj">...</div>
+            <div class="weather-container">
+                <span id="clima-texto" class="letratiempo">Aroeira: --°C</span>
+                <span id="clima-icono" class="weather-icon">⌛</span>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="galeria-container" id="galeria">
+            </div>
+
+        <div class="columna-derecha">
+            <div class="menu-cafeteria">
+                <h2>Ementa do Dia 🍽️</h2>
+                <div id="menu-contenido">
+                    <p style="text-align: center;">A carregar ementa...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="ticker-container">
+        <div class="ticker-text" id="mensaje-ticker">Carregando informações...</div>
+    </div>
+   
+<script>
+    /* "Variables globales donde se almacenarán los datos de los eventos, el menú, las fotos y la noticia de Wikipedia una vez que se descarguen." */
+    let eventos = [];
+    let menuDelDia = {};
+    let imagenes = [];
+    let noticiaDelDia = "";
+
+    /* "Función asíncrona principal. Se encarga de descargar al mismo tiempo los tres archivos JSON. Si algo falla, lo avisa en la consola. Aquí puedes cambiar el nombre de los archivos 'eventos.json', etc., si en el futuro los nombras distinto." */
+    async function cargarDatos() {
+        try {
+            const [e, m, f] = await Promise.all([
+                fetch('eventos.json').then(r => r.json()),
+                fetch('menu.json').then(r => r.json()),
+                fetch('fotos.json').then(r => r.json())
+            ]);
+            eventos = e;
+            menuDelDia = m;
+            imagenes = f;
+
+            await cargarNoticiaDelDia();
+            actualizarReloj();
+            obtenerClimaReal();
+            mostrarMenuHoy();
+            mostrarEventosHoy();
+            iniciarGaleriaConNoticia();
+        } catch (err) {
+            console.error("Error cargando JSONs:", err);
+        }
+    }
+
+    // ==================== INFORMACIÓN DEL DÍA ====================
+    async function cargarNoticiaDelDia() {
+    const hoy = new Date();
+    const mes = String(hoy.getMonth() + 1).padStart(2, '0');
+    const dia = String(hoy.getDate()).padStart(2, '0');
+    const currentYear = hoy.getFullYear();
+
+    try {
+        const res = await fetch(`https://pt.wikipedia.org/api/rest_v1/feed/onthisday/events/${mes}/${dia}`);
+        const data = await res.json();
+
+        if (data.events && data.events.length > 0) {
+            const badWords = ["guerra", "morreu", "morte", "assassinado", "bomba", "terror", "holocausto", "nazismo", "covid", "pandemia", "ataque", "massacre", "incêndio", "terremoto", "tsunami", "matou", "explosão", "crise", "ditadura"];
+
+            let safeEvents = data.events.filter(ev => {
+                if (!ev.year || ev.year >= currentYear - 29) return false;
+                const textLower = (ev.text || "").toLowerCase();
+                return !badWords.some(word => textLower.includes(word));
+            });
+
+            if (safeEvents.length > 0) {
+                safeEvents.sort((a, b) => a.year - b.year);
+                const evento = safeEvents[0];
+                const anos = currentYear - evento.year;
+                noticiaDelDia = `<strong>${evento.text}</strong><br><small style="color: #ddd;">Em ${evento.year} (há ${anos} anos) • Informação do dia</small>`;
+            } else {
+                const evento = data.events[0];
+                noticiaDelDia = `<strong>${evento.text}</strong><br><small style="color: #ddd;">Efeméride do dia</small>`;
+            }
+        } else {
+            noticiaDelDia = "Hoje não há efemérides destacadas.";
+        }
+    } catch (e) {
+        noticiaDelDia = "Informação histórica do dia não disponível hoje.";
+    }
+}
+    // ==================== GALERÍA y PANTALLA DE INFORMACIÓN ====================
+    
+    /* "Construye la galería visual. Crea los elementos de imagen y una diapositiva extra (generada con HTML y CSS en JavaScript) para mostrar la Noticia del Día. Puedes cambiar la velocidad a la que pasan las fotos modificando los 5000 (milisegundos) en el setInterval." */
+   function iniciarGaleriaConNoticia() {
+    if (imagenes.length === 0) return;
+    
+    const contenedor = document.getElementById('galeria');
+    contenedor.innerHTML = '';
+
+    // Crear todas las diapositivas
+    const slides = [];
+
+    // 1. Fotos y vídeos
+    imagenes.forEach(src => {
+        const ext = src.toLowerCase().split('.').pop();
+        const esVideo = ['mp4', 'webm', 'mov', 'avi'].includes(ext);
+
+        if (esVideo) {
+            const video = document.createElement('video');
+            video.src = src;
+            video.muted = true;
+            video.playsInline = true;
+            video.style.cssText = "width:100%; height:100%; object-fit:cover; position:absolute; opacity:0; transition:opacity 1.5s;";
+            slides.push({ element: video, type: 'video', duration: 0 }); // duration 0 = hasta que termine
+        } else {
+            const img = document.createElement('img');
+            img.src = src;
+            img.style.cssText = "width:100%; height:100%; object-fit:cover; position:absolute; opacity:0; transition:opacity 1.5s;";
+            
+            img.onload = function() {
+                if (img.naturalHeight > img.naturalWidth * 1.05) {
+                    img.style.objectFit = "contain";
+                }
+            };
+            slides.push({ element: img, type: 'image', duration: 5000 });
+        }
+    });
+
+    // 2. Diapositiva del texto informativo (20 segundos)
+    const slideInfo = document.createElement('div');
+    slideInfo.style.cssText = `
+        width:100%; height:100%; position:absolute; top:0; left:0; 
+        background: url('https://images.unsplash.com/photo-1457369804613-52c61a468e7d?auto=format&fit=crop&w=1200&q=80') center/cover;
+        display:flex; align-items:center; justify-content:center; opacity:0; transition:opacity 1.5s;
+    `;
+    slideInfo.innerHTML = `
+        <div style="background:rgba(15,42,31,0.88); backdrop-filter:blur(8px); padding:40px; border-radius:15px; 
+                    box-shadow:0 10px 30px rgba(0,0,0,0.7); border:1px solid rgba(255,255,255,0.1); 
+                    width:80%; max-width:720px; text-align:center; color:white;">
+            <h2 style="margin:0 0 20px 0; font-size:clamp(28px,4vw,36px); color:#a88e02; text-transform:uppercase;">
+                Informação do Dia
+            </h2>
+            <div style="font-size:clamp(19px,2.4vw,25px); line-height:1.5;">
+                ${noticiaDelDia}
+            </div>
+        </div>
+    `;
+    slides.push({ element: slideInfo, type: 'info', duration: 20000 });
+
+    // Añadir todo al contenedor
+    slides.forEach(slide => contenedor.appendChild(slide.element));
+
+    // ====================== ROTACIÓN INTELIGENTE ======================
+    let idx = 0;
+
+    function mostrarSiguiente() {
+        Array.from(contenedor.children).forEach(s => s.style.opacity = "0");
+        idx = (idx + 1) % slides.length;
+        const current = slides[idx];
+
+        current.element.style.transition = "opacity 1.5s";
+        current.element.style.opacity = "1";
+
+        // Si es vídeo → esperamos a que termine
+        if (current.type === 'video') {
+            current.element.play();
+            current.element.onended = () => {
+                setTimeout(mostrarSiguiente, 800); // pequeño margen después de terminar
+            };
+        } 
+        // Si es foto o info → usamos su tiempo fijo
+        else {
+            setTimeout(mostrarSiguiente, current.duration);
+        }
+    }
+
+    // Primera diapositiva
+    slides[0].element.style.opacity = "1";
+    if (slides[0].type === 'video') {
+        slides[0].element.play();
+        slides[0].element.onended = () => setTimeout(mostrarSiguiente, 800);
+    } else {
+        setTimeout(mostrarSiguiente, slides[0].duration || 5000);
+    }
+}
+    // ==================== MENÚ, TICKER, RELÓJIO, CLIMA ====================
+    
+    /* "Comprueba la fecha de hoy e intenta buscar en el archivo del menú qué se come hoy. Luego aplica formato en negrita (<strong>) a las palabras clave como 'SOPA' o 'DIETA'. Puedes añadir más 'replace' si la escuela usa otras palabras." */
+    function mostrarMenuHoy() {
+        const hoy = new Date();
+        const dd = String(hoy.getDate()).padStart(2, '0');
+        const mm = String(hoy.getMonth() + 1).padStart(2, '0');
+        const posibles = [`${dd}/${mm}`, `${dd}/${mm.slice(1)}`, `${hoy.getDate()}/${hoy.getMonth()+1}`];
+
+        let texto = "Ementa não disponível hoje";
+        for (let clave of posibles) {
+            if (menuDelDia[clave]) {
+                texto = menuDelDia[clave];
+                break;
+            }
+        }
+
+        document.getElementById('menu-contenido').innerHTML = texto
+            .replace(/\n/g, '<br>')
+            .replace(/REFORÇO:/gi, '<strong>REFORÇO:</strong>')
+            .replace(/SOPA:/gi, '<strong>SOPA:</strong>')
+            .replace(/PRATO PRINCIPAL:/gi, '<strong>PRATO PRINCIPAL:</strong>')
+            .replace(/DIETA:/gi, '<strong>DIETA:</strong>')
+            .replace(/OVO-LACTO:/gi, '<strong>OVO-LACTO:</strong>')
+            .replace(/SOBREMESA:/gi, '<strong>SOBREMESA:</strong>')
+            .replace(/LANCHE:/gi, '<strong>LANCHE:</strong>');
+    }
+
+    /* "Filtra la lista de eventos para separar cumpleaños de días especiales y crea el mensaje que se mostrará rodando en la cinta de abajo. Puedes editar frases estáticas de la cinta como 'Bem-vindos ao Colégio Guadalupe!' directamente aquí." */
+    function mostrarEventosHoy() {
+        const hoy = new Date();
+        const dd = String(hoy.getDate()).padStart(2, '0');
+        const mm = String(hoy.getMonth() + 1).padStart(2, '0');
+        const fechaHoy = `${dd}/${mm}`;
+
+        const hoyEventos = eventos.filter(e => {
+            let f = e.fecha.trim();
+            f = f.replace(/[-. ]/g, '/');
+            const partes = f.split('/');
+            if (partes.length >= 2) {
+                const d = partes[0].padStart(2, '0');
+                const m = partes[1].padStart(2, '0');
+                f = `${d}/${m}`;
+            }
+            return f === fechaHoy || f.slice(0,5) === fechaHoy;
+        });
+
+        const cumpleHoy = hoyEventos.filter(e => e.tipo === "cumpleaños");
+        const especialesHoy = hoyEventos.filter(e => e.tipo === "especial");
+        
+        let mensaje = `<span class="welcome">Bem-vindos ao Colégio Guadalupe!</span> `;
+        
+        // Cumpleaños (o mensaje cuando no hay)
+        if (cumpleHoy.length > 0) {
+            mensaje += cumpleHoy.map(e => 
+                `<span class="cumple">🎂 ${e.descripcion}</span>`
+            ).join(" • ") + " • ";
+        } else {
+            mensaje += `<span class="cumple">Hoje não há aniversários 🎂</span> • `;
+        }
+        
+        // Frase final
+        mensaje += `Tenham um excelente dia! ✨ `;
+        
+        // === DÍAS ESPECIALES AL FINAL ===
+        if (especialesHoy.length > 0) {
+            mensaje += especialesHoy.map(e => 
+                `<span class="especial">Hoje é o dia de ${e.descripcion}</span>`
+            ).join(" • ");
+        }
+        
+        document.getElementById('mensaje-ticker').innerHTML = mensaje;
+    }
+
+    /* "Genera la hora y la fecha actual en formato de Portugal y la inserta en la pantalla. Al usar un setInterval de 1000 milisegundos (1 segundo), actúa como un reloj en vivo sin necesidad de recargar la página." */
+    function actualizarReloj() {
+        const ahora = new Date();
+        const opciones = { weekday: 'long', day: 'numeric', month: 'long' };
+        const fechaStr = ahora.toLocaleDateString('pt-PT', opciones);
+        const horaStr = ahora.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' });
+        document.getElementById('reloj').innerHTML = `${fechaStr.charAt(0).toUpperCase() + fechaStr.slice(1)} | <strong>${horaStr}</strong>`;
+    }
+    setInterval(actualizarReloj, 1000);
+
+    /* "Pide información del clima a la API Open-Meteo usando latitud y longitud, y lo actualiza en la barra de arriba." */
+    async function obtenerClimaReal() {
+        try {
+            const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=38.6074&longitude=-9.1847&current_weather=true');
+            const data = await res.json();
+            
+            // Sacamos la temperatura y el código del clima
+            const temp = Math.round(data.current_weather.temperature);
+            const weatherCode = data.current_weather.weathercode;
+            
+            // Diccionario para traducir los códigos de la API a emojis
+            let emojiClima = "☁️"; // Nube por defecto
+            
+            if (weatherCode === 0) emojiClima = "☀️"; // Despejado
+             else if ((weatherCode >= 51 && weatherCode <= 67) || (weatherCode >= 80 && weatherCode <= 82)) emojiClima = "🌧️"; // Lluvia / Llovizna / Chubascos
+            else if ((weatherCode >= 71 && weatherCode <= 77) || weatherCode === 85 || weatherCode === 86) emojiClima = "❄️"; // Nieve
+            else if (weatherCode >= 95) emojiClima = "⛈️"; // Tormenta
+            
+            // Actualizamos el texto y el icono en el HTML
+            document.getElementById('clima-texto').innerText = `Aroeira: ${temp}°C`;
+            document.getElementById('clima-icono').innerText = emojiClima;
+            
+        } catch (error) {
+            console.error("No se pudo cargar el clima:", error);
+            document.getElementById('clima-icono').innerText = "⚠️"; // Muestra una advertencia si el internet o la API fallan
+        }
+    }
+
+    /* "Esta línea le indica al navegador web que justo en el momento en que se termina de cargar la página HTML, debe arrancar la función 'cargarDatos()' para poner a funcionar todo lo anterior." */
+    window.onload = cargarDatos;
+</script>
+</body>
+</html>
